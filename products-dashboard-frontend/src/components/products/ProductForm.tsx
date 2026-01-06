@@ -5,17 +5,20 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
 interface props {
+    initialValues?: CreateProductDto
     onSubmit: (product: CreateProductDto) => void
 }
 
-export function ProductForm({ onSubmit }: props) {
+export function ProductForm({ initialValues, onSubmit }: props) {
 
-    const [form, setForm] = useState<CreateProductDto>({
+    const [form, setForm] = useState<CreateProductDto>(initialValues ??
+    {
         name: "",
         description: "",
         price: 0,
         imageUrl: "",
-    });
+    }
+    );
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;

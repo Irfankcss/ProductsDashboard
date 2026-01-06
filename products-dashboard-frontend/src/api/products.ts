@@ -24,3 +24,18 @@ export async function createProduct(product: CreateProductDto): Promise<Product>
         return response.json();
     }
 }
+
+export async function editProduct(product: CreateProductDto, id: number): Promise<Product> {
+    const response = await fetch(ApiUrl + "Products/" + id, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(product)
+    })
+    if ((response == null)) {
+        throw new Error("Failed to edit product");
+    } else {
+        return response.json();
+    }
+}

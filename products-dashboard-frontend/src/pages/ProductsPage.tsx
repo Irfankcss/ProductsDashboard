@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import '../App.css';
 import type { Product } from '../models/Product';
-import { createProduct, getProducts, type CreateProductDto } from '@/api/products';
+import { createProduct, editProduct, getProducts, type CreateProductDto } from '@/api/products';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CreateProductDialog } from '@/components/products/CreateProductDialog';
+import { EditProductDialog } from '@/components/products/EditProductDialog';
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ export default function ProductsPage() {
                         <TableHead>Description</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Image</TableHead>
+                        <TableHead>Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -43,6 +45,9 @@ export default function ProductsPage() {
                                     <AvatarFallback>{product.name.slice(0, 2)}</AvatarFallback>
                                 </Avatar>
                             </TableCell>
+                            <TableCell>
+                                <EditProductDialog product={product} onUpdate={handleEdit} />
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -55,5 +60,12 @@ export default function ProductsPage() {
     async function handleCreate(product: CreateProductDto) {
         const created = await createProduct(product)
         setProducts((prev) => [...prev, created])
+    }
+    async function handleEdit(product: CreateProductDto, id: number) {
+        const edited = await editProduct(product, id)
+        setProducts((prev) =>
+            prev.map((p) => (p.id === id ? edited : p))
+        )
+
     }
 }

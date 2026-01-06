@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProductsDashboard_Backend.Data.Models;
 using ProductsDashboard_Backend.Data;
+using ProductsDashboard_Backend.Data.DTOs;
 
 namespace ProductsDashboard_Backend.Controllers
 {
@@ -51,19 +52,26 @@ namespace ProductsDashboard_Backend.Controllers
 
         // PUT: api/products/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, Product product)
+        public async Task<IActionResult> Update(int id, EditProductDto product)
         {
-            if (id != product.Id)
-                return BadRequest("ID mismatch");
 
             var exists = await _context.Products.AnyAsync(p => p.Id == id);
             if (!exists)
                 return NotFound();
 
-            _context.Entry(product).State = EntityState.Modified;
+            _context.Products.Update(new Product
+            {
+                Id = id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.ImageUrl
+            });
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return _context.Products.Find(id) != null
+                ? Ok(_context.Products.Find(id))
+                : NotFound();
         }
 
         // DELETE: api/products/5
