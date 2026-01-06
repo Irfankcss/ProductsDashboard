@@ -39,3 +39,12 @@ export async function editProduct(product: CreateProductDto, id: number): Promis
         return response.json();
     }
 }
+
+export async function deleteProduct(id: number): Promise<void> {
+    const response = await fetch(ApiUrl + "Products/" + id, {
+        method: "DELETE"
+    })
+    if (response == null) {
+        throw new Error("Failed to delete product");
+    }
+}

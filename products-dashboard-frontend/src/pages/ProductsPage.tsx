@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import '../App.css';
 import type { Product } from '../models/Product';
-import { createProduct, editProduct, getProducts, type CreateProductDto } from '@/api/products';
+import { createProduct, deleteProduct, editProduct, getProducts, type CreateProductDto } from '@/api/products';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CreateProductDialog } from '@/components/products/CreateProductDialog';
 import { EditProductDialog } from '@/components/products/EditProductDialog';
+import { DeleteProductAlertDialog } from '@/components/products/DeleteProductAlertDialog';
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         getProducts()
@@ -47,6 +49,7 @@ export default function ProductsPage() {
                             </TableCell>
                             <TableCell>
                                 <EditProductDialog product={product} onUpdate={handleEdit} />
+                                <DeleteProductAlertDialog product={product} onDelete={handleDelete} />
                             </TableCell>
                         </TableRow>
                     ))}
@@ -67,5 +70,8 @@ export default function ProductsPage() {
             prev.map((p) => (p.id === id ? edited : p))
         )
 
+    }
+    async function handleDelete(id: number) {
+        deleteProduct(id).then(() => setProducts((prev) => prev.filter((p) => p.id !== id)));
     }
 }
