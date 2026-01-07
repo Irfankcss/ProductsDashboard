@@ -1,3 +1,4 @@
+using Meilisearch;
 using Microsoft.EntityFrameworkCore;
 using ProductsDashboard_Backend.Data;
 
@@ -19,6 +20,17 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+builder.Services.AddSingleton(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+
+    return new MeilisearchClient(
+        config["MeiliSearch:Url"],
+        config["MeiliSearch:ApiKey"]
+    );
+});
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

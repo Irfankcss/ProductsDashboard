@@ -48,3 +48,21 @@ export async function deleteProduct(id: number): Promise<void> {
         throw new Error("Failed to delete product");
     }
 }
+
+export async function searchProducts(query: string): Promise<Product[]> {
+    let data: Product[] = []
+    const response = await fetch(ApiUrl + "search" + "?q=" + query, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+    });
+    if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+    }
+    const text = await response.text();
+    if (!text) return [];
+
+    return JSON.parse(text) as Product[];
+}

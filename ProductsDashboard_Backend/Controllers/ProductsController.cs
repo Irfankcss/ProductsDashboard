@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ProductsDashboard_Backend.Data.Models;
 using ProductsDashboard_Backend.Data;
 using ProductsDashboard_Backend.Data.DTOs;
+using Meilisearch;
+using System.Xml.Linq;
 
 namespace ProductsDashboard_Backend.Controllers
 {
@@ -11,20 +13,19 @@ namespace ProductsDashboard_Backend.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public ProductsController(AppDbContext context)
+        private readonly MeilisearchClient _meiliClient;
+        public ProductsController(AppDbContext context, MeilisearchClient meiliClient)
         {
+            _meiliClient = meiliClient;
             _context = context;
         }
 
-        // GET: api/products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products.OrderBy(p => p.Id).ToListAsync();
         }
 
-        // GET: api/products/5
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetById(int id)
         {
@@ -36,12 +37,22 @@ namespace ProductsDashboard_Backend.Controllers
             return product;
         }
 
-        // POST: api/products
         [HttpPost]
         public async Task<ActionResult<Product>> Create(Product product)
         {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+
+            var searchDto = new ProductSearchDto
+            {
+                Id=product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.ImageUrl
+            };
+            await _meiliClient.Index("products")
+                .AddDocumentsAsync(new[] { searchDto });
 
             return CreatedAtAction(
                 nameof(GetById),
@@ -50,31 +61,37 @@ namespace ProductsDashboard_Backend.Controllers
             );
         }
 
-        // PUT: api/products/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, EditProductDto product)
+        public async Task<IActionResult> Update(int id, EditProductDto dto)
         {
-
-            var exists = await _context.Products.AnyAsync(p => p.Id == id);
-            if (!exists)
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
                 return NotFound();
 
-            _context.Products.Update(new Product
+            product.Name = dto.Name;
+            product.Description = dto.Description;
+            product.Price = dto.Price;
+            product.ImageUrl = dto.ImageUrl;
+
+            await _context.SaveChangesAsync();
+
+            var searchDto = new ProductSearchDto
             {
-                Id = id,
+                Id = product.Id,
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
                 ImageUrl = product.ImageUrl
-            });
-            await _context.SaveChangesAsync();
+            };
 
-            return _context.Products.Find(id) != null
-                ? Ok(_context.Products.Find(id))
-                : NotFound();
+            await _meiliClient
+                .Index("products")
+                .AddDocumentsAsync(new[] { searchDto });
+
+            return Ok(product);
         }
 
-        // DELETE: api/products/5
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -85,6 +102,8 @@ namespace ProductsDashboard_Backend.Controllers
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+            await _meiliClient
+                .Index("products").DeleteOneDocumentAsync(id);
 
             return NoContent();
         }
