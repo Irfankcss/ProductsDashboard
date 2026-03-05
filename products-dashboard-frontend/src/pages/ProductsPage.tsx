@@ -27,7 +27,6 @@ export default function ProductsPage() {
                 .finally(() => setLoading(false));
             return;
         } else {
-
             setLoading(true);
             const debounce = setTimeout(() => {
                 searchProducts(searchQuery)
@@ -94,9 +93,9 @@ export default function ProductsPage() {
         setProducts((prev) =>
             prev.map((p) => (p.id === id ? edited : p))
         )
-
     }
     async function handleDelete(id: number) {
-        deleteProduct(id).then(() => setProducts((prev) => prev.filter((p) => p.id !== id)));
+        await deleteProduct(id);
+        setProducts(prev => prev.filter(p => p.id !== id));
     }
 }

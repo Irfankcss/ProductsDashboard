@@ -19,7 +19,7 @@ namespace ProductsDashboard_Backend.Controllers
         public async Task<IActionResult> Search([FromQuery] string q)
         {
             if (string.IsNullOrWhiteSpace(q))
-                return Ok();
+                return Ok(Array.Empty<ProductSearchDto>());
 
             var index = _meiliClient.Index("products");
 

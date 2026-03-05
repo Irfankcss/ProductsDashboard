@@ -18,8 +18,9 @@ export async function createProduct(product: CreateProductDto): Promise<Product>
         },
         body: JSON.stringify(product)
     })
-    if (response == null) {
-        throw new Error("Failed to create product");
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "HTTP error " + response.status);
     } else {
         return response.json();
     }
@@ -29,12 +30,13 @@ export async function editProduct(product: CreateProductDto, id: number): Promis
     const response = await fetch(ApiUrl + "Products/" + id, {
         method: "PUT",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(product)
     })
-    if ((response == null)) {
-        throw new Error("Failed to edit product");
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "HTTP error " + response.status);
     } else {
         return response.json();
     }
@@ -44,25 +46,17 @@ export async function deleteProduct(id: number): Promise<void> {
     const response = await fetch(ApiUrl + "Products/" + id, {
         method: "DELETE"
     })
-    if (response == null) {
-        throw new Error("Failed to delete product");
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "HTTP error " + response.status);
     }
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-    let data: Product[] = []
-    const response = await fetch(ApiUrl + "search" + "?q=" + query, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-    });
+    const response = await fetch(ApiUrl + "search" + "?q=" + encodeURIComponent(query));
     if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
+        throw new Error("Search failed: " + response.statusText);
     }
-    const text = await response.text();
-    if (!text) return [];
 
-    return JSON.parse(text) as Product[];
+    return response.json();
 }
