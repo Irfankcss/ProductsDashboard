@@ -23,7 +23,7 @@ namespace ProductsDashboard_Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            return await _context.Products.OrderBy(p => p.Id).ToListAsync();
+            return await _context.Products.Include(p=> p.Category).OrderBy(p => p.Id).ToListAsync();
         }
 
         [HttpGet("{id:int}")]
@@ -38,8 +38,16 @@ namespace ProductsDashboard_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> Create(Product product)
+        public async Task<ActionResult<Product>> Create(CreateProductDto p)
         {
+            var product = new Product
+            {
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                ImageUrl = p.ImageUrl,
+                CategoryId = p.CategoryId
+            };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
@@ -49,7 +57,8 @@ namespace ProductsDashboard_Backend.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageUrl = product.ImageUrl
+                ImageUrl = product.ImageUrl,
+                CategoryId = product.CategoryId
             };
             await _meiliClient.Index("products")
                 .AddDocumentsAsync(new[] { searchDto });
@@ -72,6 +81,7 @@ namespace ProductsDashboard_Backend.Controllers
             product.Description = dto.Description;
             product.Price = dto.Price;
             product.ImageUrl = dto.ImageUrl;
+            product.CategoryId = dto.CategoryId;
 
             await _context.SaveChangesAsync();
 
@@ -81,7 +91,9 @@ namespace ProductsDashboard_Backend.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageUrl = product.ImageUrl
+                ImageUrl = product.ImageUrl,
+                CategoryId = product.CategoryId
+
             };
 
             await _meiliClient

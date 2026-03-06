@@ -41,7 +41,8 @@ export function EditProductDialog({ product, onUpdate }: Props) {
                         name: product.name,
                         description: product.description,
                         price: product.price,
-                        imageUrl: product.imageUrl
+                        imageUrl: product.imageUrl,
+                        categoryId: product.categoryId
                     }} onSubmit={handleUpdate} />
                     <DialogFooter>
                         <DialogClose asChild>

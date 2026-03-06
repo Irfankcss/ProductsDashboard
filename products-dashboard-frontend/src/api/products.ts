@@ -11,6 +11,8 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function createProduct(product: CreateProductDto): Promise<Product> {
+
+    console.log(product);
     const response = await fetch(ApiUrl + "Products", {
         method: "POST",
         headers: {
@@ -27,6 +29,7 @@ export async function createProduct(product: CreateProductDto): Promise<Product>
 }
 
 export async function editProduct(product: CreateProductDto, id: number): Promise<Product> {
+    console.log("EDIT payload:", product, "id:", id);
     const response = await fetch(ApiUrl + "Products/" + id, {
         method: "PUT",
         headers: {
@@ -52,8 +55,13 @@ export async function deleteProduct(id: number): Promise<void> {
     }
 }
 
-export async function searchProducts(query: string): Promise<Product[]> {
-    const response = await fetch(ApiUrl + "search" + "?q=" + encodeURIComponent(query));
+export async function searchProducts(query: string, categoryId?: number): Promise<Product[]> {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+
+    if (categoryId && categoryId > 0) params.set("categoryId", String(categoryId));
+
+    const response = await fetch(`${ApiUrl}search?${params.toString()}`);
     if (!response.ok) {
         throw new Error("Search failed: " + response.statusText);
     }
