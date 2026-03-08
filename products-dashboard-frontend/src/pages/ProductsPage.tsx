@@ -9,17 +9,16 @@ import { EditProductDialog } from '@/components/products/EditProductDialog';
 import { DeleteProductAlertDialog } from '@/components/products/DeleteProductAlertDialog';
 import { SearchComponent } from '@/components/search/SearchComponent';
 import { CategoryList } from '@/components/categories/CategoryList';
+import { PaginationBar } from '@/components/products/PaginationBar';
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const pageSize = 6;
 
-
-    useEffect(() => {
-        getProducts()
-            .then(setProducts).finally(() => setLoading(false));
-    }, [])
 
     useEffect(() => {
         setLoading(true);
@@ -28,20 +27,20 @@ export default function ProductsPage() {
         const hasCategory = selectedCategoryId > 0;
 
         if (!hasQuery && !hasCategory) {
-            getProducts()
-                .then(setProducts)
+            getProducts(pageSize, currentPage)
+                .then(result => { setProducts(result.data); setTotalCount(result.totalCount) })
                 .finally(() => setLoading(false));
             return;
         }
 
         const debounce = setTimeout(() => {
-            searchProducts(searchQuery, selectedCategoryId)
-                .then(setProducts)
+            searchProducts(searchQuery, selectedCategoryId, pageSize, currentPage)
+                .then(result => { setProducts(result.data); setTotalCount(result.totalCount) })
                 .finally(() => setLoading(false));
         }, 400);
 
         return () => clearTimeout(debounce);
-    }, [searchQuery, selectedCategoryId]);
+    }, [searchQuery, selectedCategoryId, currentPage]);
 
 
     return (
@@ -88,26 +87,29 @@ export default function ProductsPage() {
                                 </TableRow>
                             ))}
                         </TableBody>
-                        <TableCaption>
-                            <h1 className="text-2xl font-semibold ">Products</h1>
-                        </TableCaption>
+                        <TableCaption className='pb-4'>{`Total count: ${totalCount}`}</TableCaption>
                     </Table>
                 }
+                <PaginationBar pageSize={pageSize} currentPage={currentPage} totalPages={Math.ceil(totalCount / pageSize)} onPageChange={handlePageChange} />
             </div>
         </div>
     )
     async function handleCreate(product: CreateProductDto) {
-        const created = await createProduct(product)
-        setProducts((prev) => [...prev, created])
+        await createProduct(product);
+        //setProducts((prev) => [...prev, created]);
+        setCurrentPage(1);
     }
     async function handleEdit(product: CreateProductDto, id: number) {
-        const edited = await editProduct(product, id)
-        setProducts((prev) =>
-            prev.map((p) => (p.id === id ? edited : p))
-        )
+        await editProduct(product, id);
+        //setProducts((prev) => prev.map((p) => (p.id === id ? edited : p)))
+        setCurrentPage(1);
     }
     async function handleDelete(id: number) {
         await deleteProduct(id);
-        setProducts(prev => prev.filter(p => p.id !== id));
+        //setProducts(prev => prev.filter(p => p.id !== id));
+        setCurrentPage(1);
+    }
+    function handlePageChange(page: number) {
+        setCurrentPage(page);
     }
 }

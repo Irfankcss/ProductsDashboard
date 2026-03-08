@@ -19,7 +19,7 @@ export function ProductForm({ initialValues, onSubmit }: props) {
         description: "",
         price: 0,
         imageUrl: "",
-        categoryId: 0
+        categoryId: 1
     }
     );
     const [categories, setCategories] = useState<Category[]>([]);

@@ -21,9 +21,25 @@ namespace ProductsDashboard_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAll()
+        public async Task<ActionResult<PagedResult<Product>>> GetAll([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 4)
         {
-            return await _context.Products.Include(p=> p.Category).OrderBy(p => p.Id).ToListAsync();
+            var query =  _context.Products.Include(p => p.Category).OrderBy(p => p.Id).AsQueryable();
+            var count = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)count / pageSize);
+            if (currentPage <= 0)
+                currentPage = 1;
+            if (pageSize <= 0 || pageSize > 50)
+                pageSize = 4;
+            if (currentPage > totalPages)
+                currentPage = totalPages;
+            var data = await query.Skip((currentPage-1)*pageSize).Take(pageSize).ToListAsync();
+            return Ok(new PagedResult<Product>
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                Data = data,
+                TotalCount = count,
+            });
         }
 
         [HttpGet("{id:int}")]

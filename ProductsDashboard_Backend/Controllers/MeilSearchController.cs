@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProductsDashboard_Backend.Data;
 using ProductsDashboard_Backend.Data.DTOs;
 using ProductsDashboard_Backend.Data.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProductsDashboard_Backend.Controllers
 {
@@ -17,19 +18,32 @@ namespace ProductsDashboard_Backend.Controllers
         }
 
         [HttpGet("api/search")]
-        public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] int? categoryId)
+        public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] int? categoryId, [FromQuery] int currentPage = 1, [FromQuery] int pageSize = 4)
         {
+            if (currentPage <= 0)
+                currentPage = 1;
+            if (pageSize <= 0)
+                pageSize = 4;
+            string? filter = null;
             q ??= "";
 
             var index = _meiliClient.Index("products");
-
-            var query = new SearchQuery { Limit = 10 };
-
             if (categoryId.HasValue && categoryId.Value > 0)
-                query.Filter = $"categoryId = {categoryId.Value}";
-
+                filter = $"categoryId = {categoryId.Value}";
+            var query = new SearchQuery { Limit = 10000, Filter = filter };
             var result = await index.SearchAsync<ProductSearchDto>(q, query);
-            return Ok(result.Hits);
+            var totalCount = result.Hits?.Count ?? 0;
+
+            var offset = (currentPage - 1) * pageSize;
+            query = new SearchQuery { Limit = pageSize, Offset = offset , Filter = filter };
+            result = await index.SearchAsync<ProductSearchDto>(q, query);
+            return Ok(new
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                Data = result.Hits,
+                TotalCount = totalCount
+            });
         }
 
         [HttpPost("reindex")]
