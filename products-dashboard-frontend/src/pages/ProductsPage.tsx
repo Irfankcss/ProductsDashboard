@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import '../App.css';
 import type { Product } from '../models/Product';
 import { createProduct, deleteProduct, editProduct, getProducts, searchProducts, type CreateProductDto } from '@/api/products';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { List, LayoutGrid } from "lucide-react"
 import { CreateProductDialog } from '@/components/products/CreateProductDialog';
-import { EditProductDialog } from '@/components/products/EditProductDialog';
-import { DeleteProductAlertDialog } from '@/components/products/DeleteProductAlertDialog';
 import { SearchComponent } from '@/components/search/SearchComponent';
 import { CategoryList } from '@/components/categories/CategoryList';
 import { PaginationBar } from '@/components/products/PaginationBar';
+import { ProductListView } from '@/components/products/ProductListView';
+import { ProductGridView } from '@/components/products/ProductGridView';
+import { Button } from '@/components/ui/button';
+import { ProductSkeleton } from '@/components/products/ProductSkeleton';
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ export default function ProductsPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
+    const [view, setView] = useState('list');
     const pageSize = 6;
 
 
@@ -54,43 +56,37 @@ export default function ProductsPage() {
                     <SearchComponent searchQuery={searchQuery} onSearch={setSearchQuery} />
                     <CreateProductDialog onCreate={handleCreate} />
                 </div>
-                {loading ? <p>Loading...</p> :
-
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Price (KM/kg)</TableHead>
-                                <TableHead>Image</TableHead>
-                                <TableHead>Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {products.map((product) => (
-                                <TableRow key={product.id}>
-                                    <TableCell className="font-medium">{product.id}</TableCell>
-                                    <TableCell>{product.name}</TableCell>
-                                    <TableCell>{product.description}</TableCell>
-                                    <TableCell>{product.price.toFixed(2)}</TableCell>
-                                    <TableCell>
-                                        <Avatar>
-                                            <AvatarImage src={product.imageUrl} />
-                                            <AvatarFallback>{product.name.slice(0, 2)}</AvatarFallback>
-                                        </Avatar>
-                                    </TableCell>
-                                    <TableCell>
-                                        <EditProductDialog product={product} onUpdate={handleEdit} />
-                                        <DeleteProductAlertDialog product={product} onDelete={handleDelete} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                        <TableCaption className='pb-4'>{`Total count: ${totalCount}`}</TableCaption>
-                    </Table>
-                }
-                <PaginationBar pageSize={pageSize} currentPage={currentPage} totalPages={Math.ceil(totalCount / pageSize)} onPageChange={handlePageChange} />
+                <div className="justify-end flex gap-2 mt-4 mb-1">
+                    <Button variant="outline" onClick={() => setView("list")}><List /></Button>
+                    <Button variant="outline" onClick={() => setView("grid")}><LayoutGrid /></Button>
+                </div>
+                {loading ? (
+                    <ProductSkeleton viewType={view} />
+                ) : (
+                    <>
+                        {view === "list" ? (
+                            <ProductListView
+                                products={products}
+                                onDelete={handleDelete}
+                                onEdit={handleEdit}
+                                totalCount={totalCount}
+                            />
+                        ) : (
+                            <ProductGridView
+                                products={products}
+                                onDelete={handleDelete}
+                                onEdit={handleEdit}
+                                totalCount={totalCount}
+                            />
+                        )}
+                        <PaginationBar
+                            pageSize={pageSize}
+                            currentPage={currentPage}
+                            totalPages={Math.ceil(totalCount / pageSize)}
+                            onPageChange={handlePageChange}
+                        />
+                    </>
+                )}
             </div>
         </div>
     )

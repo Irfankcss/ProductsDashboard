@@ -18,7 +18,7 @@ export function PaginationBar({ pageSize, currentPage, totalPages, onPageChange 
 
 
   return (
-    <Pagination>
+    <Pagination className="mt-4">
       <PaginationContent>
 
         <PaginationItem>
