@@ -12,6 +12,7 @@ import {
 import type { Product } from "@/models/Product"
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { TrashIcon } from "lucide-react";
 
 interface Props {
     onDelete: (id: number) => void
@@ -24,7 +25,7 @@ export function DeleteProductAlertDialog({ product, onDelete }: Props) {
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">Delete</Button>
+                <Button variant="destructive" size="sm"><TrashIcon />Delete</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>

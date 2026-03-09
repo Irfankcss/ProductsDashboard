@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { ProductForm } from "./ProductForm";
 import { type CreateProductDto } from "@/api/products";
+import { CirclePlus } from "lucide-react";
 
 interface Props {
     onCreate: (product: CreateProductDto) => void
@@ -29,7 +30,7 @@ export function CreateProductDialog({ onCreate }: Props) {
             <Dialog open={open} onOpenChange={setOpen}>
 
                 <DialogTrigger asChild>
-                    <Button variant="outline">Add product</Button>
+                    <Button variant="outline"><CirclePlus />Add product</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>

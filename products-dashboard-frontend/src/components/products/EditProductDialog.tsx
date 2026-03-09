@@ -12,6 +12,7 @@ import { ProductForm } from "./ProductForm";
 import type { CreateProductDto } from "@/api/products";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Icon, PencilIcon } from "lucide-react";
 
 interface Props {
     product: Product,
@@ -30,6 +31,7 @@ export function EditProductDialog({ product, onUpdate }: Props) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
+                        <PencilIcon />
                         Edit
                     </Button>
                 </DialogTrigger>

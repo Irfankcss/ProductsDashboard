@@ -47,8 +47,7 @@ export default function ProductsPage() {
 
     return (
         <div className="flex flex-row w-full">
-            <div className="flex-col justify-between items-center w-1/5 p-4">
-                <h2>Filter by:</h2>
+            <div className="flex-col justify-between items-center w-1/5 p-4 pt-40">
                 <CategoryList onSelected={(catId: number) => { setSelectedCategoryId(catId) }} />
             </div>
             <div className="flex-col justify-between items-center w-4/5 p-4">

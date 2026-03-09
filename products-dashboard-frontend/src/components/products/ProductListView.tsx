@@ -4,6 +4,15 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { DeleteProductAlertDialog } from "./DeleteProductAlertDialog";
 import { EditProductDialog } from "./EditProductDialog";
 import type { CreateProductDto } from "@/api/products";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "../ui/button";
 
 interface Props {
     products: Product[];
@@ -37,7 +46,7 @@ export function ProductListView({ products, totalCount, onDelete, onEdit }: Prop
                             <AvatarFallback>{product.name.slice(0, 2)}</AvatarFallback>
                         </Avatar>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="flex gap-1 ">
                         <EditProductDialog product={product} onUpdate={onEdit} />
                         <DeleteProductAlertDialog product={product} onDelete={onDelete} />
                     </TableCell>
