@@ -32,7 +32,7 @@ export function EditProductDialog({ product, onUpdate }: Props) {
                 <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
                         <PencilIcon />
-                        Edit
+
                     </Button>
                 </DialogTrigger>
                 <DialogContent>

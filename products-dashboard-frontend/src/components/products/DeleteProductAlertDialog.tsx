@@ -25,7 +25,7 @@ export function DeleteProductAlertDialog({ product, onDelete }: Props) {
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm"><TrashIcon />Delete</Button>
+                <Button variant="destructive" size="sm"><TrashIcon /></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
