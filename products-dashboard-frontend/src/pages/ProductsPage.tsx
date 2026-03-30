@@ -18,6 +18,7 @@ export default function ProductsPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
+    const [refreshKey, setRefreshKey] = useState(0);
     const [view, setView] = useState('list');
     const pageSize = 6;
 
@@ -42,14 +43,13 @@ export default function ProductsPage() {
         }, 400);
 
         return () => clearTimeout(debounce);
-    }, [searchQuery, selectedCategoryId, currentPage]);
+    }, [searchQuery, selectedCategoryId, currentPage, refreshKey]);
 
 
     return (
         <div className="flex flex-row w-full">
-            <div className="flex-col justify-between items-center w-1/5 p-4">
-                <h2>Filter by:</h2>
-                <CategoryList onSelected={(catId: number) => { setSelectedCategoryId(catId) }} />
+            <div className="flex-col justify-between items-center w-1/5 p-4 pt-40">
+                <CategoryList onSelected={handleCategoryChange} />
             </div>
             <div className="flex-col justify-between items-center w-4/5 p-4">
                 <div className='flex justify-between items-center'>
@@ -92,20 +92,21 @@ export default function ProductsPage() {
     )
     async function handleCreate(product: CreateProductDto) {
         await createProduct(product);
-        //setProducts((prev) => [...prev, created]);
-        setCurrentPage(1);
+        setRefreshKey(refreshKey + 1);
     }
     async function handleEdit(product: CreateProductDto, id: number) {
         await editProduct(product, id);
-        //setProducts((prev) => prev.map((p) => (p.id === id ? edited : p)))
-        setCurrentPage(1);
+        setRefreshKey(refreshKey + 1);
     }
     async function handleDelete(id: number) {
         await deleteProduct(id);
-        //setProducts(prev => prev.filter(p => p.id !== id));
-        setCurrentPage(1);
+        setRefreshKey(refreshKey + 1);
     }
     function handlePageChange(page: number) {
         setCurrentPage(page);
+    }
+    function handleCategoryChange(catId: number) {
+        setSelectedCategoryId(catId);
+        setCurrentPage(1);
     }
 }
